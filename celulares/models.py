@@ -10,17 +10,26 @@ class CelularesBase(models.Model):
 
     ano = models.IntegerField() 
 
-    preco = models.PriceField()        # caso usuário não souber o valor do celular a IA faz uma validação de preço no google
+    preco = models.CharField(
+        null=True,
+        blank=False,
+        max_length=6,
+        default='',
+    )    # caso usuário não souber o valor do celular a IA faz uma validação de preço no google
 
     class Meta:
         verbose_name = 'Celular'
         verbose_name_plural = 'Celulares'
         ordering = ['ano']
 
+        def __str__(self) -> str:
+            return f'{self.modelo}'
+
 class Avaliacao(CelularesBase):
     celular = models.ForeignKey(
         CelularesBase,
-        on_delete=models.CASCADE
+        related_name='avaliacoes',
+        on_delete=models.CASCADE,
     )
     nome = models.CharField(
         max_length=150
@@ -33,14 +42,14 @@ class Avaliacao(CelularesBase):
         default=''
     )
 
-    avaliacao = models.DecimalField(
+    avaliacaonum = models.DecimalField(
         max_digits=2,
         decimal_places=1,
     )
 
     class Meta:
         verbose_name = 'Avaliação'
-        verbose_name_plural = 'Avaliacões'
+        verbose_name_plural = 'Avaliações'
         unique_together = ['celular', 'email']
 
         def __str__(self) -> str:
