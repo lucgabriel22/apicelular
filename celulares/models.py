@@ -1,20 +1,33 @@
 from django.db import models
 
-class CelularesBase(models.Model):
+class BaseModel(models.Model):
+    criacao = models.DateTimeField(
+    auto_now=True
+    )
+    atualizacao = models.DateTimeField(
+    auto_now=True
+    )
+    ativo = models.BooleanField(
+    default=True
+    )
+
+    class Meta:
+        abstract = True
+
+class CelularesBase(BaseModel):
     marca = models.CharField(
-    max_length=100
+        max_length=100
     )
     modelo = models.CharField(
-    max_length=100
+        max_length=100
     )
 
     ano = models.IntegerField() 
 
     preco = models.CharField(
-        null=True,
-        blank=False,
-        max_length=6,
-        default='',
+        null=False,
+        blank=True,
+        max_length=6
     )    # caso usuário não souber o valor do celular a IA faz uma validação de preço no google
 
     class Meta:
@@ -22,10 +35,10 @@ class CelularesBase(models.Model):
         verbose_name_plural = 'Celulares'
         ordering = ['ano']
 
-        def __str__(self) -> str:
-            return f'{self.modelo}'
+    def __str__(self):
+        return f'{self.modelo}'
 
-class Avaliacao(CelularesBase):
+class Avaliacao(BaseModel):
     celular = models.ForeignKey(
         CelularesBase,
         related_name='avaliacoes',
@@ -34,17 +47,18 @@ class Avaliacao(CelularesBase):
     nome = models.CharField(
         max_length=150
     )
+
     email = models.EmailField()
 
     comentario = models.TextField(
-        null=True,
-        blank=False,
+        blank=True,
         default=''
     )
 
-    avaliacaonum = models.DecimalField(
+    avaliacao = models.DecimalField(
         max_digits=2,
         decimal_places=1,
+        
     )
 
     class Meta:
@@ -52,5 +66,5 @@ class Avaliacao(CelularesBase):
         verbose_name_plural = 'Avaliações'
         unique_together = ['celular', 'email']
 
-        def __str__(self) -> str:
-            return f'{self.celular} avaliado por {self.nome} com {self.avaliacao}'
+    def __str__(self) -> str:
+        return f'{self.celular} avaliado por {self.nome} com {self.avaliacao}'
