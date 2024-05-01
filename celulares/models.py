@@ -1,20 +1,21 @@
 from django.db import models
 
-class BaseModel(models.Model):
+class Base(models.Model):
     criacao = models.DateTimeField(
-    auto_now=True
+        auto_now=True
     )
     atualizacao = models.DateTimeField(
-    auto_now=True
+        auto_now=True
     )
     ativo = models.BooleanField(
-    default=True
+        default=True
     )
 
     class Meta:
         abstract = True
 
-class CelularesBase(BaseModel):
+class CelularesBase(Base):
+    
     marca = models.CharField(
         max_length=100
     )
@@ -30,6 +31,8 @@ class CelularesBase(BaseModel):
         max_length=6
     )    # caso usuário não souber o valor do celular a IA faz uma validação de preço no google
 
+    
+
     class Meta:
         verbose_name = 'Celular'
         verbose_name_plural = 'Celulares'
@@ -38,7 +41,7 @@ class CelularesBase(BaseModel):
     def __str__(self):
         return f'{self.modelo}'
 
-class Avaliacao(BaseModel):
+class Avaliacao(Base):
     celular = models.ForeignKey(
         CelularesBase,
         related_name='avaliacoes',
@@ -54,17 +57,21 @@ class Avaliacao(BaseModel):
         blank=True,
         default=''
     )
+    avaliacao_id = models.AutoField(
+        primary_key=True
+    )
 
     avaliacao = models.DecimalField(
         max_digits=2,
         decimal_places=1,
-        
     )
 
     class Meta:
         verbose_name = 'Avaliação'
         verbose_name_plural = 'Avaliações'
-        unique_together = ['celular', 'email']
+        unique_together = [
+            'email', 'celular'
+        ]
 
     def __str__(self) -> str:
-        return f'{self.celular} avaliado por {self.nome} com {self.avaliacao}'
+        return f'{self.celular} avaliado por {self.nome} com nota {self.avaliacao}'
